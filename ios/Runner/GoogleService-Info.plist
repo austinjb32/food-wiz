@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAObPgPWa9w6hEIsXTN9IuXDVKy26Zh6nM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>278461326560</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.stylish</string>
+	<key>PROJECT_ID</key>
+	<string>foodwiz-7a8ae</string>
+	<key>STORAGE_BUCKET</key>
+	<string>foodwiz-7a8ae.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:278461326560:ios:b9c31ff84f61596614dc85</string>
+</dict>
+</plist>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "278461326560",
+    "project_id": "foodwiz-7a8ae",
+    "storage_bucket": "foodwiz-7a8ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278461326560:android:a32f786be9b5bd7114dc85",
+        "android_client_info": {
+          "package_name": "com.example.stylish"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbTpMffhCu-VTWs1w6S_qOZk8z2u6eiNA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
