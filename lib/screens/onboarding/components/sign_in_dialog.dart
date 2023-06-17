@@ -7,7 +7,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
   showGeneralDialog(
     context: context,
     barrierLabel: "Barrier",
-    barrierDismissible: true,
+    barrierDismissible: false,
     barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (_, __, ___) {
@@ -160,6 +160,6 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
     },
   ).then((value) {
     onValue(value); // Call the callback function
-    Navigator.pop(context, '/'); // Navigate to the home screen
+    Navigator.pop(context, '/login'); // Navigate to the home screen
   });
 }

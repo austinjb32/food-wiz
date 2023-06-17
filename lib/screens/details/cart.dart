@@ -1,94 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AddToCartPage extends StatelessWidget {
-  final String cartItemId;
+class CartService {
+  static Future<void> addToCart(String cartItemId) async {
+    final cartItemRef =
+    FirebaseFirestore.instance.collection('cart').doc(cartItemId);
 
-  const AddToCartPage({required this.cartItemId});
+    final cartItemDoc = await cartItemRef.get();
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('cart')
-          .doc(cartItemId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    if (cartItemDoc.exists) {
+      final cartItemData = cartItemDoc.data() as Map<String, dynamic>;
+      final quantity = cartItemData['quantity'] as int;
 
-        final cartItemData = snapshot.data!.data() as Map<String, dynamic>;
-
-        if (cartItemData.isEmpty) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Add to Cart'),
-            ),
-            body: const Center(
-              child: Text('No items in cart'),
-            ),
-          );
-        }
-
-        final imageUrl = cartItemData['imageUrl'] as String;
-        final title = cartItemData['title'] as String;
-        final price = cartItemData['price'] as double;
-        final quantity = cartItemData['quantity'] as int;
-
-        return SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text('Add to Cart'),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Image.network(
-                      imageUrl,
-                      height: 200,
-                      width: 200,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    'Price: \₹ ${price.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    'Quantity: $quantity',
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      print("Order now");
-                    },
-                    child: const Text('Order Now'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
+      await cartItemRef.update({'quantity': quantity + 1});
+    } else {
+      // Handle the case where the cart item does not exist
+    }
   }
 }

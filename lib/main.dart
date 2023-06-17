@@ -8,11 +8,26 @@ import 'package:stylish/screens/search/search_widget.dart';
 
 import 'add_products.dart';
 
+bool isAuthenticated = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Perform authentication check
+  isAuthenticated = await performAuthenticationCheck();
+
   runApp(const MyApp());
 }
+
+Future<bool> performAuthenticationCheck() async {
+  // Implement your authentication logic here
+  // You can use Firebase Authentication or any other authentication mechanism
+
+  // For demo purposes, assume the user is not authenticated
+  return false; // Return false as the user is not authenticated
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -20,7 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'The Flutter Way',
+      title: 'FoodWay',
       theme: ThemeData(
         scaffoldBackgroundColor: bgColor,
         primarySwatch: Colors.blue,
@@ -33,16 +48,19 @@ class MyApp extends StatelessWidget {
           bodyText2: TextStyle(color: Colors.black54),
         ),
       ),
-      initialRoute: '/login',
+      initialRoute: isAuthenticated ? '/' : '/login',
       routes: {
-        '/login': (context) => const OnbodingScreen(),
-        '/': (context) => BottomNavigationWrapper(
-          child: const HomeScreen(),
+        '/login': (context) => OnbodingScreen(),
+        '/': (context) => const BottomNavigationWrapper(
+          child: HomeScreen(isAuthenticated: false),
         ),
         '/search': (context) => BottomNavigationWrapper(
           child: const SearchPage(),
         ),
         '/add': (context) => BottomNavigationWrapper(
+          child: const AddProductPage(),
+        ),
+        '/cart': (context) => BottomNavigationWrapper(
           child: const AddProductPage(),
         ),
         // Add your other routes here
@@ -126,8 +144,8 @@ class _BottomNavigationWrapperState extends State<BottomNavigationWrapper> {
               label: 'Search',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.add), // Add this line
-              label: 'Add', // Update the label as desired
+              icon: Icon(Icons.add),
+              label: 'Add',
             ),
           ],
         ),
