@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:stylish/constants.dart';
+
+import '../../constants.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({key});
-
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -20,10 +20,11 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   leading: Icon(CupertinoIcons.back,color: black,),
-      //   actions: [Icon(CupertinoIcons.search,color: black,)],
-      //   backgroundColor: primary,elevation: 0,),
+      appBar: AppBar(
+        // leading: Icon(CupertinoIcons.back,color: Colrs.black,),
+        // actions: [Icon(CupertinoIcons.search,color: black,)],
+        // backgroundColor: primaryColor,elevation: 0,
+        ),
       backgroundColor: bgColor,
       body: getBody(),
     );
@@ -50,22 +51,32 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ]),
                     child: Padding(
-                      padding:
-                      const EdgeInsets.only(top: 20, bottom: 25, right: 20, left: 20),
+                      padding: const EdgeInsets.only(
+                          top: 20, bottom: 25, right: 20, left: 20),
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [Icon(Icons.bar_chart), Icon(Icons.person_2_outlined)],
+                            children: [
+                              Icon(Icons.bar_chart),
+                              Icon(Icons.person_2_outlined)
+                            ],
                           ),
                           SizedBox(
                             height: 15,
                           ),
                           StreamBuilder<DocumentSnapshot>(
-                            stream: _firestore.collection('users').doc(_auth.currentUser?.uid).snapshots(),
+                            stream: _firestore
+                                .collection('users')
+                                .doc(_auth.currentUser?.uid)
+                                .snapshots(),
                             builder: (context, snapshot) {
-                              if (snapshot.data != null) {
-                                Map<String, dynamic> userMap = snapshot.data!.data() as Map<String, dynamic>;
+                              if (snapshot.hasData) {
+                                Map<String, dynamic> userMap =
+                                snapshot.data!.data() as Map<String, dynamic>;
+                                String? imageUrl = userMap['image_url']
+                                as String?; // Retrieve the image URL
+
                                 return Column(
                                   children: [
                                     Container(
@@ -73,10 +84,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                       height: 70,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        image: DecorationImage(
-                                          image: NetworkImage(userMap['image']),
+                                        image: imageUrl != null
+                                            ? DecorationImage(
+                                          image: NetworkImage(imageUrl),
                                           fit: BoxFit.cover,
-                                        ),
+                                        )
+                                            : null,
                                       ),
                                     ),
                                     SizedBox(height: 10),
@@ -103,7 +116,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                           SizedBox(height: 10),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
                                             children: [
                                               Text(
                                                 userMap['role'],
@@ -114,7 +128,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ),
                                               ),
                                               Column(
-                                                children: [userMap['role']=="User" ?Icon(Icons.safety_check,color: Colors.pink,size: 40,):Icon(CupertinoIcons.check_mark_circled_solid,color: Colors.blue,size: 40,)],
+                                                children: [
+                                                  userMap['role'] == "User"
+                                                      ? Icon(
+                                                    Icons.safety_check,
+                                                    color: Colors.pink,
+                                                    size: 40,
+                                                  )
+                                                      : Icon(
+                                                    CupertinoIcons
+                                                        .check_mark_circled_solid,
+                                                    color: Colors.blue,
+                                                    size: 40,
+                                                  )
+                                                ],
                                               ),
                                             ],
                                           ),
@@ -123,11 +150,24 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                     SizedBox(
                                       height: 30,
-                                    ),Row(
+                                    ),
+                                    Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Column(
-                                          children: [userMap['gender']=="female" ?Icon(Icons.female_outlined,color: Colors.pink,size: 40,):Icon(Icons.male_outlined,color: Colors.blue,size: 40,)],
+                                          children: [
+                                            userMap['gender'] == "female"
+                                                ? Icon(
+                                              Icons.female_outlined,
+                                              color: Colors.pink,
+                                              size: 40,
+                                            )
+                                                : Icon(
+                                              Icons.male_outlined,
+                                              color: Colors.blue,
+                                              size: 40,
+                                            )
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -169,8 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ],
                       ),
-                    )
-                )
+                    ))
               ],
             )));
   }

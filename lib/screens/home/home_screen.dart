@@ -1,40 +1,80 @@
+import 'package:FoodWiz/screens/search/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:stylish/constants.dart';
-import 'package:stylish/screens/home/components/categories.dart'; // Import your login screen
-import 'package:stylish/screens/onboarding/onboding_screen.dart';
 
-import '../../models/Product.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+
+import '../../constants.dart';
+import '../../models/pro.dart';
+import '../details/components/cartpage.dart';
+import '../onboarding/onboding_screen.dart';
+import 'components/categories.dart';
 import 'new_arrival_page.dart';
 
-class HomeScreen extends StatelessWidget {
-  final bool isAuthenticated; // Add a parameter to indicate authentication status
+class HomeScreen extends StatefulWidget {
+  final bool isAuthenticated;
 
   const HomeScreen({Key? key, required this.isAuthenticated}) : super(key: key);
 
   @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  Stream<QuerySnapshot> productStream = FirebaseFirestore.instance
+      .collection('products')
+      .snapshots(); // Replace 'products' with your collection name
+
+  int selectedCategoryIndex = 0;
+
+  Future<void> signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => OnbodingScreen()));
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (!isAuthenticated) {
-      return OnbodingScreen(); // Return your login screen if not authenticated
+    if (!widget.isAuthenticated) {
+      return OnbodingScreen();
     }
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {},
-          icon: SvgPicture.asset("assets/icons/menu.svg"),
+        leading:
+        IconButton(
+          icon: SvgPicture.asset("assets/icons/Arrow Right.svg"),
+          onPressed: () {
+            signOut(context);
+          },
         ),
         actions: [
           IconButton(
-            icon: SvgPicture.asset("assets/icons/Notification.svg"),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.grey),
+            icon: SvgPicture.asset("assets/icons/Search.svg"),
+            color: Colors.redAccent,
             onPressed: () {
-              // Handle cart button pressed
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => (SearchPage())),
+              );
             },
           ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => (CartPage())),
+              );
+            },
+            icon: SvgPicture.asset("assets/icons/Notification.svg"),
+          ),
+
         ],
       ),
       body: SingleChildScrollView(
@@ -53,18 +93,50 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const Text(
-              "Best Dishes for You",
+              "Experience the Taste of India",
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: defaultPadding),
             Categories(
-              onCategorySelected: (category) {
-                // Handle category selection
+              categories: demoCategories,
+              onCategorySelected: (categoryIndex) {
+                setState(() {
+                  selectedCategoryIndex = categoryIndex as int;
+                });
               },
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height,
-              child: NewArrivalPage(selectedCategoryIndex: 0),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: productStream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    // Handle error state
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    // Handle loading state
+                    return CircularProgressIndicator();
+                  }
+
+                  // Data has been fetched successfully
+                  final products = snapshot.data?.docs;
+
+                  // Filter products by selected category
+                  final filteredProducts = (products ?? []).where((product) {
+                    final productCategory = product.get('category') as String;
+                    return productCategory ==
+                        demoCategories[selectedCategoryIndex].title;
+                  }).toList();
+
+                  // Update your UI with the fetched and filtered products
+                  return NewArrivalPage(
+                    selectedCategoryIndex: selectedCategoryIndex,
+                    products: filteredProducts,
+                  );
+                },
+              ),
             ),
             // Add your other widgets here
           ],

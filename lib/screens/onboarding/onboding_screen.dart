@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:FoodWiz/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import 'components/signup_btn.dart';
@@ -76,16 +77,16 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                   children: [
                     const Spacer(),
                     SizedBox(
-                      width: 260,
+                      width: 160,
                       child: Column(
                         children: const [
                           Text(
-                            "FoodWiz",
+                            "Agape",
                             style: TextStyle(
-                              fontSize: 60,
+                              fontSize: 55,
                               fontWeight: FontWeight.w700,
                               fontFamily: "Poppins",
-                              color: Colors.cyan,
+                              color: primaryColor,
                               height: 1.2,
                             ),
                           ),

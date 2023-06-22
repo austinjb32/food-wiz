@@ -3,17 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../cart.dart';
 
-class AddToCartPage extends StatelessWidget {
+class AddToCartPage extends StatefulWidget {
   final String cartItemId;
 
   const AddToCartPage({required this.cartItemId});
+
+  @override
+  _AddToCartPageState createState() => _AddToCartPageState();
+}
+
+class _AddToCartPageState extends State<AddToCartPage> {
+  double finalAmount = 0;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('cart')
-          .doc(cartItemId)
+          .doc(widget.cartItemId)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -37,6 +44,8 @@ class AddToCartPage extends StatelessWidget {
         final title = cartItemData['title'] as String;
         final price = cartItemData['price'] as double;
         final quantity = cartItemData['quantity'] as int;
+
+        finalAmount = price * quantity;
 
         return SafeArea(
           child: Scaffold(
@@ -66,7 +75,7 @@ class AddToCartPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'Price: \₹ ${price.toStringAsFixed(2)}',
+                    'Price: ₹ ${price.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 18.0,
                     ),
@@ -81,10 +90,18 @@ class AddToCartPage extends StatelessWidget {
                   const SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () {
-                      CartService.addToCart(cartItemId); // Add to cart functionality
+                      CartService.addToCart(widget.cartItemId); // Add to cart functionality
                       print('Order now');
                     },
                     child: const Text('Order Now'),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Text(
+                    'Final Amount: ₹ ${finalAmount.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),

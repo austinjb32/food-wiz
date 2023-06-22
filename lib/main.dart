@@ -1,41 +1,24 @@
+import 'package:FoodWiz/screens/home/home_screen.dart';
+import 'package:FoodWiz/screens/onboarding/onboding_screen.dart';
+import 'package:FoodWiz/screens/search/search_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:stylish/constants.dart';
-import 'package:stylish/screens/home/home_screen.dart';
-import 'package:stylish/screens/onboarding/onboding_screen.dart';
-import 'package:stylish/screens/search/search_widget.dart';
 
 import 'add_products.dart';
-
-bool isAuthenticated = false;
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
-  // Perform authentication check
-  isAuthenticated = await performAuthenticationCheck();
-
-  runApp(const MyApp());
-}
-
-Future<bool> performAuthenticationCheck() async {
-  // Implement your authentication logic here
-  // You can use Firebase Authentication or any other authentication mechanism
-
-  // For demo purposes, assume the user is not authenticated
-  return false; // Return false as the user is not authenticated
-}
+import 'constants.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final bool isAuthenticated;
+
+  const MyApp({Key? key, required this.isAuthenticated}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'FoodWay',
+      title: 'Agape',
       theme: ThemeData(
         scaffoldBackgroundColor: bgColor,
         primarySwatch: Colors.blue,
@@ -48,108 +31,22 @@ class MyApp extends StatelessWidget {
           bodyText2: TextStyle(color: Colors.black54),
         ),
       ),
-      initialRoute: isAuthenticated ? '/' : '/login',
-      routes: {
-        '/login': (context) => OnbodingScreen(),
-        '/': (context) => const BottomNavigationWrapper(
-          child: HomeScreen(isAuthenticated: false),
-        ),
-        '/search': (context) => BottomNavigationWrapper(
-          child: const SearchPage(),
-        ),
-        '/add': (context) => BottomNavigationWrapper(
-          child: const AddProductPage(),
-        ),
-        '/cart': (context) => BottomNavigationWrapper(
-          child: const AddProductPage(),
-        ),
-        // Add your other routes here
-      },
+      home: OnbodingScreen(),
     );
   }
 }
 
-class BottomNavigationWrapper extends StatefulWidget {
-  final Widget child;
-
-  const BottomNavigationWrapper({Key? key, required this.child}) : super(key: key);
-
-  @override
-  _BottomNavigationWrapperState createState() => _BottomNavigationWrapperState();
+Future<bool> performAuthenticationCheck() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  return user != null;
 }
 
-class _BottomNavigationWrapperState extends State<BottomNavigationWrapper> {
-  int _currentIndex = 0;
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
-  void _handleNavigation(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  // Perform authentication check
+  bool isAuthenticated = await performAuthenticationCheck();
 
-    // Perform navigation based on the selected tab
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/add');
-        break;
-    // Add more cases for other tabs
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Get the current route's name
-    final currentRoute = ModalRoute.of(context)?.settings.name;
-
-    // Update the current index based on the route
-    if (currentRoute == '/') {
-      _currentIndex = 0;
-    } else if (currentRoute == '/search') {
-      _currentIndex = 1;
-    } else if (currentRoute == '/add') {
-      _currentIndex = 2;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Check if the current route is the onboarding screen
-    final isOnboardingScreen = ModalRoute.of(context)?.settings.name == '/login';
-
-    // Return the appropriate layout based on the current route
-    if (isOnboardingScreen) {
-      return Scaffold(body: widget.child);
-    } else {
-      return Scaffold(
-        body: widget.child,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: _handleNavigation,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Search',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add),
-              label: 'Add',
-            ),
-          ],
-        ),
-      );
-    }
-  }
+  runApp(MyApp(isAuthenticated: isAuthenticated));
 }

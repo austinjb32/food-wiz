@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stylish/constants.dart';
-import '../../models/product.dart';
-import 'components/color_dot.dart';
+import '../../constants.dart';
+import '../../models/pro.dart' as details;
 
 class Product {
   String id;
@@ -24,19 +23,73 @@ class Product {
     required this.imageLarge,
   });
 
-  // Add getters for 'id' and 'quantity'
   String get productId => id;
+
   int get productQuantity => quantity;
 }
 
-class DetailsScreen extends StatelessWidget {
-  final product;
+class DetailsScreen extends StatefulWidget {
+  final details.Product product;
 
   const DetailsScreen({Key? key, required this.product}) : super(key: key);
 
+  @override
+  _DetailsScreenState createState() => _DetailsScreenState();
+}
 
+class _DetailsScreenState extends State<DetailsScreen> {
+  bool isFavorite = false;
+  int quantity = 1; // Track the quantity of the product
 
-  Future<void> addToCart(Product product) async {
+  Future<void> toggleFavorite() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final favoriteRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites');
+
+      if (isFavorite) {
+        favoriteRef.doc(widget.product.id).delete();
+      } else {
+        favoriteRef.doc(widget.product.id).set({
+          'id': widget.product.id,
+          'title': widget.product.title,
+          'price': widget.product.price,
+          'description': widget.product.description,
+          'quantity': widget.product.quantity,
+          'imageLarge': widget.product.imageLarge,
+        });
+      }
+
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkIfFavorite();
+  }
+
+  Future<void> checkIfFavorite() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final favoriteRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites');
+
+      final favoriteSnapshot = await favoriteRef.doc(widget.product.id).get();
+      setState(() {
+        isFavorite = favoriteSnapshot.exists;
+      });
+    }
+  }
+
+  Future<void> addToCart(details.Product product) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final cartRef = FirebaseFirestore.instance
@@ -54,7 +107,7 @@ class DetailsScreen extends StatelessWidget {
 
       final productRef =
       FirebaseFirestore.instance.collection('products').doc(product.id);
-      final currentStock = product.quantity as int;
+      final currentStock = product.quantity;
       productRef.update({'quantity': currentStock - 1});
     }
   }
@@ -66,12 +119,13 @@ class DetailsScreen extends StatelessWidget {
         leading: const BackButton(color: Colors.black),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: toggleFavorite,
             icon: CircleAvatar(
               backgroundColor: Colors.white,
               child: SvgPicture.asset(
                 "assets/icons/Heart.svg",
                 height: 20,
+                color: isFavorite ? Colors.red : Colors.grey,
               ),
             ),
           )
@@ -80,7 +134,7 @@ class DetailsScreen extends StatelessWidget {
       body: Column(
         children: [
           Image.network(
-            product.image_large,
+            widget.product.imageLarge,
             height: MediaQuery.of(context).size.height * 0.4,
             fit: BoxFit.cover,
           ),
@@ -103,39 +157,51 @@ class DetailsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          product.title,
+                          widget.product.title,
                           style: Theme.of(context).textTheme.headline6,
                         ),
                       ),
                       const SizedBox(width: defaultPadding),
                       Text(
-                        "\₹ " + product.price.toString(),
+                        "\₹ " + widget.product.price.toString(),
                         style: Theme.of(context).textTheme.headline6,
                       ),
                     ],
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: defaultPadding),
-                    child: Text(product.description ?? ''),
+                    child: Text(widget.product.description ?? ''),
                   ),
                   Text(
-                    "Amounts",
+                    "Quantity",
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                   const SizedBox(height: defaultPadding / 2),
                   Row(
-                    children: const [
-                      ColorDot(
-                        color: Color(0xFFBEE8EA),
-                        isActive: false,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            if (quantity > 1) {
+                              quantity--;
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.remove),
                       ),
-                      ColorDot(
-                        color: Color(0xFF141B4A),
-                        isActive: true,
+                      Text(
+                        quantity.toString(),
+                        style: TextStyle(fontSize: 18),
                       ),
-                      ColorDot(
-                        color: Color(0xFFF4E5C3),
-                        isActive: false,
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            if (quantity < widget.product.quantity) {
+                              quantity++;
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.add),
                       ),
                     ],
                   ),
@@ -146,7 +212,19 @@ class DetailsScreen extends StatelessWidget {
                       height: 48,
                       child: ElevatedButton(
                         onPressed: () {
-                          addToCart(product);
+                          addToCart(widget.product);
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("Successfully Added to Cart"),
+                                content: TextButton(
+                                  child: Text("OK"),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              );
+                            },
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           primary: primaryColor,

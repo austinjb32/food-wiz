@@ -3,8 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
-import 'package:stylish/screens/home/home_screen.dart';
 
+import '../../home/home_page.dart';
+import '../../home/home_screen.dart';
 class SignInForm extends StatefulWidget {
   const SignInForm({
     Key? key,
@@ -54,7 +55,7 @@ class _SignInFormState extends State<SignInForm> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const HomeScreen(isAuthenticated: true),
+          builder: (context) => const MyHomePage(),
         ),
       );
     } catch (e) {

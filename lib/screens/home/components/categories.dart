@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:stylish/constants.dart';
+
+import '../../../constants.dart';
 
 class Category {
   final String icon;
@@ -29,10 +30,12 @@ List<Category> demoCategories = [
 ];
 
 class Categories extends StatefulWidget {
-  final void Function(Category) onCategorySelected;
+  final List<Category> categories;
+  final void Function(int) onCategorySelected;
 
   const Categories({
     Key? key,
+    required this.categories,
     required this.onCategorySelected,
   }) : super(key: key);
 
@@ -45,21 +48,24 @@ class _CategoriesState extends State<Categories> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(
-        demoCategories.length,
-            (index) => GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedIndex = index;
-            });
-            widget.onCategorySelected(demoCategories[index]);
-          },
-          child: CategoryCard(
-            category: demoCategories[index],
-            isSelected: _selectedIndex == index,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(
+          widget.categories.length,
+              (index) => GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedIndex = index;
+              });
+              widget.onCategorySelected(index); // Pass the index here
+            },
+            child: CategoryCard(
+              category: widget.categories[index],
+              isSelected: _selectedIndex == index,
+            ),
           ),
         ),
       ),
@@ -82,16 +88,16 @@ class CategoryCard extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
-          height: 64,
-          width: 64,
+          padding: const EdgeInsets.all(10),
+          height: 90,
+          width: 90,
           decoration: BoxDecoration(
-            color: isSelected ? kPrimaryColor : Colors.white,
+            color: isSelected ? primaryColor : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               if (isSelected)
                 BoxShadow(
-                  color: kPrimaryColor.withOpacity(0.4),
+                  color: primaryColor.withOpacity(0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -102,12 +108,12 @@ class CategoryCard extends StatelessWidget {
             color: isSelected ? Colors.white : kTextColor,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 10),
         Text(
           category.title,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isSelected ? kPrimaryColor : kTextColor.withOpacity(0.4),
+            color: isSelected ? primaryColor : kTextColor.withOpacity(0.4),
           ),
         ),
       ],

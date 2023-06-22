@@ -1,3 +1,4 @@
+import 'package:FoodWiz/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -81,7 +82,12 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignUpPage(),
+                              ),
+                            );},
                             padding: EdgeInsets.zero,
                             icon: SvgPicture.asset(
                               "assets/icons/email_box.svg",
