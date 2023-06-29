@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants.dart';
 import '../screens/details/details_screen.dart';
-import '../screens/home/components/categories.dart';
 
 class Product {
   final String imageSmall;
